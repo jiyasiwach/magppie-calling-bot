@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   Warm Console design tokens (§1.1) — RGB triplets so Tailwind /opacity
+   modifiers keep working (e.g. bg-surface/60).
+   ========================================================================= */
+:root {
+  --bg: 245 239 227; /* #F5EFE3 warm parchment */
+  --surface: 251 248 241; /* #FBF8F1 */
+  --surface-raised: 255 255 255; /* #FFFFFF */
+  --ink: 42 38 32; /* #2A2620 */
+  --ink-muted: 110 100 85; /* #6E6455 */
+  --border: 230 220 199; /* #E6DCC7 */
+  --accent-primary: 63 90 70; /* #3F5A46 deep pine */
+  --accent-secondary: 176 141 87; /* #B08D57 aged brass */
+  --success: 92 122 82; /* #5C7A52 */
+  --warning: 184 135 63; /* #B8873F */
+  --danger: 165 73 58; /* #A5493A */
+
+  /* categorical chart set */
+  --chart-brass: 176 141 87; /* #B08D57 */
+  --chart-pine: 63 90 70; /* #3F5A46 */
+  --chart-blue: 92 116 136; /* #5C7488 */
+  --chart-clay: 165 105 90; /* #A5695A */
+  --chart-olive: 138 131 85; /* #8A8355 */
+  --chart-slate: 110 100 85; /* #6E6455 */
+
+  --radius: 10px;
+
+  /* Font stacks (loaded via <link> in layout; graceful fallbacks first) */
+  --font-fraunces: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-public-sans: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-space-grotesk: 'Space Grotesk', ui-monospace, 'Cascadia Code', monospace;
+}
+
+* {
+  border-color: rgb(var(--border));
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--ink));
+  font-feature-settings: 'ss01';
+}
+
+/* §7.3 — tabular numerals for KPIs/data so figures don't jitter on update */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-space-grotesk), ui-monospace, monospace;
+}
+
+/* §1.4 — respect reduced motion globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Warm, quiet scrollbars to match the console */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--border)) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--ink-muted) / 0.4);
+  background-clip: content-box;
+}
+
+/* Visible keyboard focus (§7.2) */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent-primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Landing hero: slow Ken Burns crossfade. Opacity 0 at both ends hides the
+   scale reset; a static base image behind the layers covers any crossfade dip. */
+@keyframes landing-kenburns {
+  0% { opacity: 0; transform: scale(1); }
+  5% { opacity: 1; }
+  30% { opacity: 1; }
+  38% { opacity: 0; }
+  100% { opacity: 0; transform: scale(1.14); }
+}
+@keyframes landing-bars {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-layer { animation: none !important; opacity: 1 !important; }
+  .landing-layer:not(:first-of-type) { opacity: 0 !important; }
+  .landing-bar { animation: none !important; }
+}
+
+@layer components {
+  .card-hairline {
+    @apply rounded-card border border-border bg-surface shadow-card;
+  }
+  /* §1.4 micro-interaction: row/card lifts 2px on hover, no bounce */
+  .lift-on-hover {
+    @apply transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-lift;
+  }
+}
