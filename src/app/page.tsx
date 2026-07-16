@@ -8,16 +8,8 @@ import { useApp } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
 // Real Magppie kitchen photos — crossfaded with a slow Ken Burns zoom.
-// All verified to load from the magppie.com CDN; mixed portrait + landscape.
-const KITCHENS = [
-  'https://magppie.com/cdn/shop/files/TAR9436-1.jpg?v=1765195362',
-  'https://magppie.com/cdn/shop/files/3.jpg?v=1765195362',
-  'https://magppie.com/cdn/shop/files/20250812_1846_Luxurious_Kitchen_Plants_remix_01k2f6tcdee87rmxbxzprgva5b.png?v=1765195359',
-  'https://magppie.com/cdn/shop/files/TAR9430-1.jpg?v=1765195363',
-  'https://magppie.com/cdn/shop/files/3_Backsplash.jpg?v=1765195359',
-]
-const SECONDS_PER_PHOTO = 8
-const LOOP_SECONDS = KITCHENS.length * SECONDS_PER_PHOTO // scales with photo count
+// Shared with the console shell backdrop (components/shared/kitchen-backdrop).
+import { KITCHEN_PHOTOS as KITCHENS, KITCHEN_LOOP_SECONDS as LOOP_SECONDS } from '@/components/shared/kitchen-backdrop'
 
 export default function LandingPage() {
   return (
