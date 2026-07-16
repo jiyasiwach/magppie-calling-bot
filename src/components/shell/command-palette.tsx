@@ -5,13 +5,17 @@ import { useRouter } from 'next/navigation'
 import { Command } from 'cmdk'
 import * as Dialog from '@radix-ui/react-dialog'
 import { NAV } from '@/lib/nav'
-import { CONVERSATIONS, CAMPAIGNS, AGENTS, KB_DOCS } from '@/lib/mock-data'
+import { useConversations, useCampaigns, useAgents, useKbDocs } from '@/lib/data'
 import { useApp } from '@/lib/store'
 import { Search } from 'lucide-react'
 
 export function CommandPalette() {
   const { commandOpen, setCommandOpen } = useApp()
   const router = useRouter()
+  const conversations = useConversations()
+  const campaigns = useCampaigns()
+  const agents = useAgents()
+  const kbDocs = useKbDocs()
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -62,7 +66,7 @@ export function CommandPalette() {
               </Command.Group>
 
               <Command.Group heading="Conversations" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-ink-muted/70">
-                {CONVERSATIONS.map((c) => (
+                {conversations.map((c) => (
                   <Item key={c.id} onSelect={() => go('/conversations')}>
                     <span className="text-ink">{c.customerName}</span>
                     <span className="ml-auto text-xs text-ink-muted">{c.agentName}</span>
@@ -71,19 +75,19 @@ export function CommandPalette() {
               </Command.Group>
 
               <Command.Group heading="Campaigns & Agents" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-ink-muted/70">
-                {CAMPAIGNS.map((c) => (
+                {campaigns.map((c) => (
                   <Item key={c.id} onSelect={() => go('/campaigns')}>
                     {c.name}
                     <span className="ml-auto text-xs text-ink-muted">Campaign</span>
                   </Item>
                 ))}
-                {AGENTS.map((a) => (
+                {agents.map((a) => (
                   <Item key={a.id} onSelect={() => go('/agents')}>
                     {a.name}
                     <span className="ml-auto text-xs text-ink-muted">Agent</span>
                   </Item>
                 ))}
-                {KB_DOCS.map((d) => (
+                {kbDocs.map((d) => (
                   <Item key={d.id} onSelect={() => go('/knowledge')}>
                     {d.title}
                     <span className="ml-auto text-xs text-ink-muted">KB</span>

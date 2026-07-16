@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { SentimentTag, PageHeader, EmptyState } from '@/components/ui/misc'
 import { useLiveCalls } from '@/lib/use-live'
 import { useApp } from '@/lib/store'
-import { AGENTS } from '@/lib/mock-data'
+import { useAgents } from '@/lib/data'
 import { LANGUAGE_LABEL, type LiveCall, type Sentiment } from '@/lib/types'
 import { maskPhone, duration, cn } from '@/lib/utils'
 import { RadioTower, PhoneIncoming, PhoneOutgoing } from 'lucide-react'
@@ -21,7 +21,7 @@ export default function LivePage() {
   const [selected, setSelected] = useState<LiveCall | null>(null)
   const [filter, setFilter] = useState<Filter>({ agent: 'all', sentiment: 'all', direction: 'all' })
 
-  const agents = AGENTS.filter((a) => a.tenant === tenant)
+  const agents = useAgents()
 
   const filtered = useMemo(
     () =>
@@ -79,8 +79,12 @@ export default function LivePage() {
       {filtered.length === 0 ? (
         <EmptyState
           icon={<RadioTower className="h-8 w-8" />}
-          title="No calls match these filters"
-          hint="Try clearing a filter to see active conversations."
+          title={calls.length === 0 ? 'No active calls right now' : 'No calls match these filters'}
+          hint={
+            calls.length === 0
+              ? 'When your agents start taking calls, they’ll appear here in real time.'
+              : 'Try clearing a filter to see active conversations.'
+          }
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

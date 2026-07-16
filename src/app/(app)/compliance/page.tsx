@@ -5,15 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/misc'
-import { COMPLIANCE } from '@/lib/mock-data'
-import { useApp } from '@/lib/store'
+import { useComplianceRecords } from '@/lib/data'
 import { maskPhone, cn } from '@/lib/utils'
 import { toast } from '@/lib/toast'
 import { Check, X, Download, ShieldCheck, ShieldAlert } from 'lucide-react'
 
 export default function CompliancePage() {
-  const { tenant } = useApp()
-  const records = COMPLIANCE.filter((r) => r.tenant === tenant)
+  const records = useComplianceRecords()
   const compliant = records.filter((r) => r.status === 'compliant').length
   const flagged = records.length - compliant
 
@@ -60,6 +58,13 @@ export default function CompliancePage() {
                 </tr>
               </thead>
               <tbody>
+                {records.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="py-8 text-center text-sm text-ink-muted">
+                      No calls audited yet — every call will log consent, DND and recording-disclosure checks here automatically.
+                    </td>
+                  </tr>
+                )}
                 {records.map((r) => (
                   <tr key={r.id} className="border-b border-border/60 last:border-0">
                     {/* §3.8 visual status strip */}

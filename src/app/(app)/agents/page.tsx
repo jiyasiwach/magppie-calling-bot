@@ -5,9 +5,9 @@ import { formatDistanceToNow } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { PageHeader, StatusDot } from '@/components/ui/misc'
+import { PageHeader, StatusDot, EmptyState } from '@/components/ui/misc'
 import { AGENTS, AGENT_VERSIONS, NOW } from '@/lib/mock-data'
-import { useApp } from '@/lib/store'
+import { useAgents } from '@/lib/data'
 import {
   LANGUAGE_LABEL,
   TOOL_ACTION_LABEL,
@@ -30,12 +30,32 @@ const ALL_LANGS: Language[] = ['en', 'hi', 'ta', 'te', 'mr', 'bn', 'kn']
 const PERSONAS = ['patient', 'impatient', 'confused', 'hostile'] as const
 
 export default function AgentsPage() {
-  const { tenant } = useApp()
-  const agents = AGENTS.filter((a) => a.tenant === tenant)
+  const agents = useAgents()
   const [activeId, setActiveId] = useState(agents[0]?.id)
   const active = agents.find((a) => a.id === activeId) ?? agents[0]
 
-  if (!active) return null
+  if (!active)
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Agent Builder & Simulator"
+          subtitle="Configure your voice agents and pressure-test them in a sandbox before publishing."
+        >
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => toast.info('New agent', 'Name your agent, pick a persona and languages to begin.')}
+          >
+            <Sparkles className="h-4 w-4" /> New agent
+          </Button>
+        </PageHeader>
+        <EmptyState
+          icon={<Bot className="h-8 w-8" />}
+          title="No agents yet"
+          hint="Create your first voice agent to configure its persona, languages and tools — then rehearse it in the sandbox before going live."
+        />
+      </div>
+    )
 
   return (
     <div className="space-y-6">

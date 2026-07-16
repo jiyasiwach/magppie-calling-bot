@@ -10,16 +10,14 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { getCallVolume } from '@/lib/mock-data'
-import { useApp } from '@/lib/store'
+import { useCallVolumeSeries } from '@/lib/data'
 import { CHART } from './theme'
 import { ChartTooltip } from './tooltip'
 import { cn } from '@/lib/utils'
 
 export function CallVolumeChart() {
-  const { tenant } = useApp()
   const [range, setRange] = useState<7 | 30>(7)
-  const data = getCallVolume(range, tenant)
+  const data = useCallVolumeSeries(range)
 
   return (
     <div>

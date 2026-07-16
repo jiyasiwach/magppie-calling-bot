@@ -7,17 +7,20 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { LIVE_CALLS } from './mock-data'
+import { useApp } from './store'
 import type { LiveCall } from './types'
 
 const REDUCED =
   typeof window !== 'undefined' &&
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-/** Concurrent-call volume 0..1 driving the waveform amplitude. */
+/** Concurrent-call volume 0..1 driving the waveform amplitude.
+ *  Flatlines at 0 in live mode — no calls, no wave. */
 export function useCallVolume() {
+  const demo = useApp((s) => s.dataMode === 'demo')
   const [vol, setVol] = useState(0.6)
   useEffect(() => {
-    if (REDUCED) return
+    if (REDUCED || !demo) return
     const id = setInterval(() => {
       setVol((v) => {
         const next = v + (Math.random() - 0.5) * 0.25
@@ -25,17 +28,21 @@ export function useCallVolume() {
       })
     }, 1400)
     return () => clearInterval(id)
-  }, [])
-  return vol
+  }, [demo])
+  return demo ? vol : 0
 }
 
-/** Live calls with ticking duration timers. */
+/** Live calls with ticking duration timers. Empty in live mode — nothing is
+ *  actually on a call until the backend exists. */
 export function useLiveCalls(tenant?: string): LiveCall[] {
+  const demo = useApp((s) => s.dataMode === 'demo')
   const [tick, setTick] = useState(0)
   useEffect(() => {
+    if (!demo) return
     const id = setInterval(() => setTick((t) => t + 1), 1000)
     return () => clearInterval(id)
-  }, [])
+  }, [demo])
+  if (!demo) return []
   const base = tenant ? LIVE_CALLS.filter((c) => c.tenant === tenant) : LIVE_CALLS
   return base.map((c) => ({ ...c, durationSec: c.durationSec + tick }))
 }
@@ -60,7 +67,15 @@ export function useCountUp(target: number, ms = 600) {
       else from.current = target
     }
     raf = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(raf)
+    // rAF is paused in hidden tabs — guarantee we land on the final value
+    const settle = setTimeout(() => {
+      setVal(target)
+      from.current = target
+    }, ms + 80)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(settle)
+    }
   }, [target, ms])
   return val
 }

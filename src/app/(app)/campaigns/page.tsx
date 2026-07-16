@@ -13,16 +13,15 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { PageHeader, Meter } from '@/components/ui/misc'
+import { PageHeader, Meter, EmptyState } from '@/components/ui/misc'
 import { Switch } from '@/components/ui/switch'
 import { ChartTooltip } from '@/components/charts/tooltip'
 import { CATEGORICAL, CHART } from '@/components/charts/theme'
-import { CAMPAIGNS } from '@/lib/mock-data'
-import { useApp } from '@/lib/store'
+import { useCampaigns } from '@/lib/data'
 import { LANGUAGE_LABEL, type Campaign, type CampaignStatus } from '@/lib/types'
 import { inr, nfmt, cn } from '@/lib/utils'
 import { toast } from '@/lib/toast'
-import { Gauge, TrendingUp, Zap } from 'lucide-react'
+import { Gauge, TrendingUp, Zap, Megaphone } from 'lucide-react'
 
 const STATUS_TONE: Record<CampaignStatus, 'success' | 'warning' | 'neutral' | 'pine'> = {
   running: 'success',
@@ -32,8 +31,7 @@ const STATUS_TONE: Record<CampaignStatus, 'success' | 'warning' | 'neutral' | 'p
 }
 
 export default function CampaignsPage() {
-  const { tenant } = useApp()
-  const campaigns = CAMPAIGNS.filter((c) => c.tenant === tenant)
+  const campaigns = useCampaigns()
   const [activeId, setActiveId] = useState(campaigns[0]?.id)
   const active = campaigns.find((c) => c.id === activeId) ?? campaigns[0]
 
@@ -52,7 +50,16 @@ export default function CampaignsPage() {
         </Button>
       </PageHeader>
 
+      {campaigns.length === 0 && (
+        <EmptyState
+          icon={<Megaphone className="h-8 w-8" />}
+          title="No campaigns yet"
+          hint="Create your first outbound campaign — pick an agent, upload a contact list, and set pacing. Results appear here in real time."
+        />
+      )}
+
       {/* list */}
+      {campaigns.length > 0 && (
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -95,6 +102,7 @@ export default function CampaignsPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
       {active && <CampaignDetail campaign={active} />}
     </div>

@@ -130,13 +130,15 @@ function TopBar() {
 }
 
 function LiveCard() {
+  // demo mode animates numbers; live mode shows the honest current state (zero)
+  const demo = useApp((s) => s.dataMode === 'demo')
   const [stats, setStats] = useState({ active: 9, resolution: 83, latency: 640 })
   const [reduced, setReduced] = useState(false)
 
   useEffect(() => {
     const rm = window.matchMedia('(prefers-reduced-motion: reduce)')
     setReduced(rm.matches)
-    if (rm.matches) return
+    if (rm.matches || !demo) return
     const id = setInterval(() => {
       setStats((s) => ({
         active: Math.max(6, Math.min(14, s.active + (Math.random() > 0.5 ? 1 : -1))),
@@ -145,7 +147,7 @@ function LiveCard() {
       }))
     }, 2200)
     return () => clearInterval(id)
-  }, [])
+  }, [demo])
 
   return (
     <div className="w-full max-w-sm rounded-card border border-border bg-surface-raised/70 p-5 shadow-panel backdrop-blur-md">
@@ -165,7 +167,11 @@ function LiveCard() {
               className="landing-bar w-1 origin-bottom rounded-full bg-accent-secondary"
               style={{
                 height: '100%',
-                animation: reduced ? 'none' : `landing-bars ${1 + (i % 4) * 0.25}s ${i * 0.08}s ease-in-out infinite`,
+                transform: demo ? undefined : 'scaleY(0.12)',
+                animation:
+                  reduced || !demo
+                    ? 'none'
+                    : `landing-bars ${1 + (i % 4) * 0.25}s ${i * 0.08}s ease-in-out infinite`,
               }}
             />
           ))}
@@ -173,9 +179,9 @@ function LiveCard() {
       </div>
 
       <div className="mt-5 grid grid-cols-3 gap-3">
-        <Stat label="Active now" value={stats.active} />
-        <Stat label="Resolved today" value={`${stats.resolution}%`} />
-        <Stat label="Avg response" value={`${stats.latency}ms`} />
+        <Stat label="Active now" value={demo ? stats.active : 0} />
+        <Stat label="Resolved today" value={demo ? `${stats.resolution}%` : '—'} />
+        <Stat label="Avg response" value={demo ? `${stats.latency}ms` : '—'} />
       </div>
     </div>
   )

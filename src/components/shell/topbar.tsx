@@ -2,11 +2,12 @@
 
 import { TenantSwitcher } from './tenant-switcher'
 import { NotificationCenter } from './notification-center'
+import { Switch } from '@/components/ui/switch'
 import { useApp } from '@/lib/store'
 import { Search } from 'lucide-react'
 
 export function Topbar() {
-  const { setCommandOpen } = useApp()
+  const { setCommandOpen, dataMode, setDataMode } = useApp()
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-bg/80 px-4 backdrop-blur-md md:px-6">
       <TenantSwitcher />
@@ -23,6 +24,15 @@ export function Topbar() {
       </button>
 
       <div className="flex items-center gap-1">
+        {/* Live vs Demo data source (§ live mode = real state, zero until backend) */}
+        <label className="mr-2 hidden items-center gap-2 rounded-sm border border-border bg-surface-raised px-2.5 py-1.5 sm:flex">
+          <span className="text-xs font-medium text-ink-muted">Demo data</span>
+          <Switch
+            checked={dataMode === 'demo'}
+            onCheckedChange={(v) => setDataMode(v ? 'demo' : 'live')}
+            aria-label="Toggle demo data"
+          />
+        </label>
         <NotificationCenter />
         <div className="ml-1 flex items-center gap-2 rounded-sm py-1 pl-1 pr-2 hover:bg-ink/5">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-primary/15 text-xs font-semibold text-accent-primary">

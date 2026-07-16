@@ -8,16 +8,14 @@ import { CallVolumeChart } from '@/components/charts/call-volume'
 import { StatusDot, PageHeader } from '@/components/ui/misc'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { AGENTS, ESCALATIONS, getKpis } from '@/lib/mock-data'
-import { useApp } from '@/lib/store'
+import { useAgents, useEscalations, useKpis } from '@/lib/data'
 import { inr, nfmt, duration as _d } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
 
 export default function OverviewPage() {
-  const { tenant } = useApp()
-  const kpi = getKpis(tenant)
-  const agents = AGENTS.filter((a) => a.tenant === tenant)
-  const escalations = ESCALATIONS.filter((e) => e.tenant === tenant)
+  const kpi = useKpis()
+  const agents = useAgents()
+  const escalations = useEscalations()
 
   return (
     <div className="space-y-6">
@@ -53,6 +51,11 @@ export default function OverviewPage() {
             <CardTitle>Agent health</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
+            {agents.length === 0 && (
+              <p className="px-2 py-6 text-center text-sm text-ink-muted">
+                No agents deployed yet — build one in Agent Builder.
+              </p>
+            )}
             {agents.map((a) => (
               <div
                 key={a.id}
@@ -93,6 +96,13 @@ export default function OverviewPage() {
                 </tr>
               </thead>
               <tbody>
+                {escalations.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-sm text-ink-muted">
+                      No escalations yet — calls handled by AI will appear here when one needs a human.
+                    </td>
+                  </tr>
+                )}
                 {escalations.map((e) => (
                   <tr key={e.id} className="border-b border-border/60 last:border-0">
                     <td className="py-3 pr-4 text-ink">{e.reason}</td>

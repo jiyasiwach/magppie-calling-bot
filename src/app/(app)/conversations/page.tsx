@@ -9,8 +9,8 @@ import { PageHeader, SentimentTag, Meter, EmptyState } from '@/components/ui/mis
 import { HandoffVisualizer } from '@/components/shared/handoff-visualizer'
 import { Customer360 } from '@/components/shared/customer-360'
 import { AudioScrubber } from '@/components/shared/audio-scrubber'
-import { CONVERSATIONS, HANDOFF_SAMPLE, CUSTOMER_360 } from '@/lib/mock-data'
-import { useApp } from '@/lib/store'
+import { HANDOFF_SAMPLE, CUSTOMER_360 } from '@/lib/mock-data'
+import { useConversations } from '@/lib/data'
 import { LANGUAGE_LABEL, TOOL_ACTION_LABEL, type Conversation, type CallOutcome } from '@/lib/types'
 import { maskPhone, duration, cn } from '@/lib/utils'
 import { downloadTranscript, downloadAllTranscripts, downloadCallIndexCsv } from '@/lib/download'
@@ -39,14 +39,14 @@ const OUTCOME_TONE: Record<CallOutcome, 'success' | 'warning' | 'danger' | 'pine
 }
 
 export default function ConversationsPage() {
-  const { tenant } = useApp()
+  const conversations = useConversations()
   const [q, setQ] = useState('')
   const [outcome, setOutcome] = useState('all')
   const [open, setOpen] = useState<string | null>(null)
 
   const rows = useMemo(
     () =>
-      CONVERSATIONS.filter((c) => c.tenant === tenant)
+      conversations
         .filter((c) => (outcome === 'all' ? true : c.outcome === outcome))
         .filter((c) =>
           q
@@ -55,7 +55,7 @@ export default function ConversationsPage() {
               c.summary.toLowerCase().includes(q.toLowerCase())
             : true,
         ),
-    [tenant, q, outcome],
+    [conversations, q, outcome],
   )
 
   return (
@@ -113,7 +113,14 @@ export default function ConversationsPage() {
       </div>
 
       {rows.length === 0 ? (
-        <EmptyState title="No conversations found" hint="Adjust your search or outcome filter." />
+        <EmptyState
+          title={conversations.length === 0 ? 'No calls recorded yet' : 'No conversations found'}
+          hint={
+            conversations.length === 0
+              ? 'Once your agents start handling calls, every conversation lands here with its transcript, recording and explainability trace.'
+              : 'Adjust your search or outcome filter.'
+          }
+        />
       ) : (
         <div className="space-y-2">
           {rows.map((c) => (

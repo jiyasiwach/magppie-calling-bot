@@ -15,25 +15,18 @@ import { Badge } from '@/components/ui/badge'
 import { PageHeader, Meter } from '@/components/ui/misc'
 import { ChartTooltip } from '@/components/charts/tooltip'
 import { CHART, CATEGORICAL } from '@/components/charts/theme'
-import { getHourHeatmap, getToolReliability, getCallVolume } from '@/lib/mock-data'
-import { useApp } from '@/lib/store'
+import { useHourHeatmap, useToolReliability, useLanguageMix, useCallVolumeSeries } from '@/lib/data'
 import { TOOL_ACTION_LABEL, type ToolAction } from '@/lib/types'
 import { nfmt, cn } from '@/lib/utils'
 import { Wrench } from 'lucide-react'
 
 export default function AnalyticsPage() {
-  const { tenant } = useApp()
-  const heat = getHourHeatmap()
-  const tools = getToolReliability(tenant)
-  const langData = [
-    { name: 'Hindi', value: 42 },
-    { name: 'English', value: 31 },
-    { name: 'Tamil', value: 11 },
-    { name: 'Telugu', value: 8 },
-    { name: 'Marathi', value: 5 },
-    { name: 'Kannada', value: 3 },
-  ]
-  const maxHeat = Math.max(...heat.map((h) => h.value))
+  const heat = useHourHeatmap()
+  const tools = useToolReliability()
+  const langData = useLanguageMix()
+  const costSeries = useCallVolumeSeries(14)
+  // guard: all-zero heatmap must not divide by zero
+  const maxHeat = Math.max(1, ...heat.map((h) => h.value))
 
   return (
     <div className="space-y-6">
@@ -61,8 +54,8 @@ export default function AnalyticsPage() {
                   <span className="text-sm font-medium text-ink">
                     {TOOL_ACTION_LABEL[t.action as ToolAction]}
                   </span>
-                  <Badge tone={t.success > 0.97 ? 'success' : t.success > 0.9 ? 'warning' : 'danger'}>
-                    {(t.success * 100).toFixed(1)}%
+                  <Badge tone={t.calls === 0 ? 'neutral' : t.success > 0.97 ? 'success' : t.success > 0.9 ? 'warning' : 'danger'}>
+                    {t.calls === 0 ? 'no data' : `${(t.success * 100).toFixed(1)}%`}
                   </Badge>
                 </div>
                 <Meter
@@ -71,7 +64,7 @@ export default function AnalyticsPage() {
                   className="mt-2"
                 />
                 <p className="mt-1.5 text-xs text-ink-muted">
-                  {nfmt(t.calls)} calls · {nfmt(t.failed)} failed
+                  {t.calls === 0 ? 'No calls yet' : `${nfmt(t.calls)} calls · ${nfmt(t.failed)} failed`}
                 </p>
               </div>
             ))}
@@ -141,7 +134,7 @@ export default function AnalyticsPage() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={getCallVolume(14, tenant)} margin={{ top: 6, right: 6, left: -20, bottom: 0 }}>
+            <BarChart data={costSeries} margin={{ top: 6, right: 6, left: -20, bottom: 0 }}>
               <CartesianGrid stroke={CHART.grid} vertical={false} />
               <XAxis dataKey="date" tick={{ fill: CHART.inkMuted, fontSize: 11 }} tickLine={false} axisLine={{ stroke: CHART.grid }} />
               <YAxis tick={{ fill: CHART.inkMuted, fontSize: 11 }} tickLine={false} axisLine={false} />

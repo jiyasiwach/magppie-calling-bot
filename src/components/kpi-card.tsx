@@ -3,7 +3,7 @@
 import { Area, AreaChart, ResponsiveContainer } from 'recharts'
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react'
 import { Card } from '@/components/ui/card'
-import { getSparkline } from '@/lib/mock-data'
+import { useSparkline } from '@/lib/data'
 import { useCountUp } from '@/lib/use-live'
 import { CHART } from '@/components/charts/theme'
 import { cn } from '@/lib/utils'
@@ -25,7 +25,7 @@ export function KpiCard({
   invertTrend?: boolean
 }) {
   const animated = useCountUp(value)
-  const spark = getSparkline(seed)
+  const spark = useSparkline(seed)
   const good = invertTrend ? trend < 0 : trend > 0
   const TrendIcon = trend >= 0 ? ArrowUpRight : ArrowDownRight
 

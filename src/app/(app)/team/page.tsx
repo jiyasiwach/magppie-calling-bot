@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/misc'
-import { TEAM, TENANTS } from '@/lib/mock-data'
+import { TENANTS } from '@/lib/mock-data'
+import { useTeam } from '@/lib/data'
 import type { Role } from '@/lib/types'
 import { toast } from '@/lib/toast'
 import { UserPlus } from 'lucide-react'
@@ -19,6 +20,7 @@ const ROLE_TONE: Record<Role, 'pine' | 'brass' | 'success' | 'neutral'> = {
 }
 
 export default function TeamPage() {
+  const team = useTeam()
   return (
     <div className="space-y-6">
       <PageHeader
@@ -50,7 +52,14 @@ export default function TeamPage() {
                 </tr>
               </thead>
               <tbody>
-                {TEAM.map((m) => (
+                {team.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="py-8 text-center text-sm text-ink-muted">
+                      Just you so far — invite teammates and assign roles & brand access.
+                    </td>
+                  </tr>
+                )}
+                {team.map((m) => (
                   <tr key={m.id} className="border-b border-border/60 last:border-0 hover:bg-ink/[0.02]">
                     <td className="p-3">
                       <div className="flex items-center gap-2.5">

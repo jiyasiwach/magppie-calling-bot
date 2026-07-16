@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/misc'
-import { INTEGRATIONS } from '@/lib/mock-data'
+import { useIntegrations, useDataMode } from '@/lib/data'
 import type { Integration, IntegrationKind } from '@/lib/types'
 import { toast } from '@/lib/toast'
 import { Database, PhoneCall, MessageCircle, Webhook } from 'lucide-react'
@@ -25,8 +25,12 @@ const KIND_LABEL: Record<IntegrationKind, string> = {
 }
 
 export default function IntegrationsPage() {
-  // local copy so connect/disconnect actually flips in the UI
-  const [items, setItems] = useState<Integration[]>(INTEGRATIONS)
+  const base = useIntegrations()
+  const mode = useDataMode()
+  // local copy so connect/disconnect actually flips in the UI;
+  // re-seeded whenever the data mode changes
+  const [items, setItems] = useState<Integration[]>(base)
+  useEffect(() => setItems(base), [mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = (id: string) => {
     const target = items.find((it) => it.id === id)

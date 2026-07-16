@@ -4,9 +4,8 @@ import { format } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { PageHeader, Meter } from '@/components/ui/misc'
-import { KB_DOCS, KB_GAPS } from '@/lib/mock-data'
-import { useApp } from '@/lib/store'
+import { PageHeader, Meter, EmptyState } from '@/components/ui/misc'
+import { useKbDocs, useKbGaps } from '@/lib/data'
 import type { KbStatus } from '@/lib/types'
 import { toast } from '@/lib/toast'
 import { FileText, PenLine, AlertCircle } from 'lucide-react'
@@ -18,9 +17,8 @@ const STATUS: Record<KbStatus, { tone: 'success' | 'warning' | 'danger'; label: 
 }
 
 export default function KnowledgePage() {
-  const { tenant } = useApp()
-  const docs = KB_DOCS.filter((d) => d.tenant === tenant)
-  const gaps = [...KB_GAPS].sort((a, b) => b.askedCount - a.askedCount)
+  const docs = useKbDocs()
+  const gaps = [...useKbGaps()].sort((a, b) => b.askedCount - a.askedCount)
 
   return (
     <div className="space-y-6">
@@ -44,6 +42,11 @@ export default function KnowledgePage() {
             <CardTitle>Sources</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
+            {docs.length === 0 && (
+              <p className="py-8 text-center text-sm text-ink-muted">
+                No sources indexed yet — add your first document (catalog, warranty policy, dealer list) to power the agent’s answers.
+              </p>
+            )}
             {docs.map((d) => {
               const s = STATUS[d.status]
               return (
@@ -72,6 +75,11 @@ export default function KnowledgePage() {
             <CardTitle>Knowledge gaps this week</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {gaps.length === 0 && (
+              <p className="py-8 text-center text-sm text-ink-muted">
+                No gaps detected yet — questions the agent can’t answer confidently will surface here, ranked by how often they’re asked.
+              </p>
+            )}
             {gaps.map((g) => (
               <div key={g.id} className="rounded-sm border border-border bg-surface p-3">
                 <div className="flex items-start justify-between gap-2">
