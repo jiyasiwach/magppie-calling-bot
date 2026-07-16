@@ -1,10 +1,18 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
+
 // Living kitchen backdrop — real Magppie kitchen photography (magppie.com CDN)
 // crossfading with a slow Ken Burns zoom. Shared by the landing hero and the
-// console shell; `veil` controls how strongly the parchment tint covers it
-// (console uses a heavy veil so content stays calm and readable).
+// console shell; `veil` controls how strongly the parchment tint covers it.
+// When no veil is given, it adapts per route: showcase screens (dashboard,
+// live) let the kitchen breathe through; data-dense screens stay near-solid
+// so nothing competes with tables and charts.
 // Keyframes + reduced-motion handling live in globals.css (.landing-layer).
+
+const SHOWCASE_VEIL = 0.88
+const DENSE_VEIL = 0.965
+const SHOWCASE_ROUTES = ['/dashboard', '/live']
 
 export const KITCHEN_PHOTOS = [
   'https://magppie.com/cdn/shop/files/TAR9436-1.jpg?v=1765195362',
@@ -17,7 +25,10 @@ export const KITCHEN_PHOTOS = [
 export const SECONDS_PER_PHOTO = 8
 export const KITCHEN_LOOP_SECONDS = KITCHEN_PHOTOS.length * SECONDS_PER_PHOTO
 
-export function KitchenBackdrop({ veil = 0.93 }: { veil?: number }) {
+export function KitchenBackdrop({ veil }: { veil?: number }) {
+  const pathname = usePathname()
+  const resolved =
+    veil ?? (SHOWCASE_ROUTES.some((r) => pathname.startsWith(r)) ? SHOWCASE_VEIL : DENSE_VEIL)
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
       {/* static base so a crossfade dip never flashes blank */}
@@ -37,8 +48,8 @@ export function KitchenBackdrop({ veil = 0.93 }: { veil?: number }) {
       ))}
       {/* parchment veil keeps the console quiet and legible */}
       <div
-        className="absolute inset-0"
-        style={{ backgroundColor: `rgb(245 239 227 / ${veil})` }}
+        className="absolute inset-0 transition-colors duration-700"
+        style={{ backgroundColor: `rgb(245 239 227 / ${resolved})` }}
       />
     </div>
   )

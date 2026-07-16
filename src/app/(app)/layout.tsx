@@ -8,8 +8,8 @@ import { KitchenBackdrop } from '@/components/shared/kitchen-backdrop'
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-screen bg-bg">
-      {/* living kitchen photography, heavily veiled so the console stays calm */}
-      <KitchenBackdrop veil={0.93} />
+      {/* living kitchen photography — veil adapts per route (showcase vs data-dense) */}
+      <KitchenBackdrop />
       <Sidebar />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <Topbar />
