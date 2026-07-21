@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * Theme tokens. In Tailwind v4 there is no tailwind.config.js — these
+ * generate the utilities (bg-cast, text-bone, border-brass, font-read…).
+ * Six colours, three faces. Nothing here is decorative; each earns its
+ * place in the brief.
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-cast: #14120f; /* warm near-black the kitchen is graded toward */
+  --color-cast-deep: #0b0a08; /* the glass tint / deepest shadow */
+  --color-bone: #ede7dd; /* text + glass tint */
+  --color-sand: #c9bda8; /* secondary text, hairlines */
+  --color-brass: #a8834b; /* the accent — off kitchen hardware */
+  --color-ember: #b4462f; /* live dot + anything with a human on the line */
+
+  /* next/font supplies the -var- values; these are the fallback stacks */
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-read: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --shadow-ambient: 0 24px 60px -20px rgba(0, 0, 0, 0.55);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-cast-deep);
+  color: var(--color-bone);
+  font-family: var(--font-sans);
+  overflow: hidden; /* full viewport, nothing scrolls but the two panels */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus has to stay visible for keyboard users. */
+:focus-visible {
+  outline: 2px solid var(--color-brass);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@layer components {
+  /* One piece of frosted glass resting on the kitchen. One soft ambient
+     shadow — no stacked shadows, no gradients. */
+  .glass {
+    background: color-mix(in srgb, var(--color-cast) 62%, transparent);
+    backdrop-filter: blur(20px) saturate(115%);
+    -webkit-backdrop-filter: blur(20px) saturate(115%);
+    border: 1px solid color-mix(in srgb, var(--color-bone) 9%, transparent);
+    box-shadow: var(--shadow-ambient);
+  }
+
+  /* Hairline dividers/edges in the console. */
+  .hairline {
+    border-color: color-mix(in srgb, var(--color-sand) 16%, transparent);
+  }
+
+  .panel-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-sand) 30%, transparent)
+      transparent;
+  }
+  .panel-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  .panel-scroll::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-sand) 26%, transparent);
+    border-radius: 8px;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Orb motion. The burner is the one loud thing; everything else stays
+ * still. Motion is CSS-driven so a single media query can kill all of
+ * it for reduced-motion users.
+ * ------------------------------------------------------------------ */
+@keyframes orb-drift-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes orb-drift-ccw {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+@keyframes orb-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.045);
+    opacity: 1;
+  }
+}
+@keyframes orb-tick {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes orb-ripple {
+  0% {
+    transform: scale(1.28);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(0.86);
+    opacity: 0;
+  }
+}
+@keyframes orb-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Everything rotates/scales about the burner centre. */
+.orb-spin {
+  transform-origin: 100px 100px;
+}
+
+/* Ports drift slowly whenever the burner is lit (any live state). */
+.orb[data-live="true"] .orb-port-a {
+  animation: orb-drift-cw 44s linear infinite;
+}
+.orb[data-live="true"] .orb-port-b {
+  animation: orb-drift-ccw 58s linear infinite;
+}
+
+/* State ring: ticks while thinking, breathes while speaking. */
+.orb[data-state="thinking"] .orb-state-ring {
+  animation: orb-tick 6s steps(30) infinite;
+}
+.orb[data-state="speaking"] .orb-state-ring {
+  animation: orb-breathe 3.1s ease-in-out infinite;
+}
+
+/* Caller talking: rings ripple inward from outside the rim. */
+.orb[data-state="listening"] .orb-ripple {
+  animation: orb-ripple 2.4s ease-out infinite;
+}
+.orb[data-state="listening"] .orb-ripple-2 {
+  animation-delay: 0.8s;
+}
+.orb[data-state="listening"] .orb-ripple-3 {
+  animation-delay: 1.6s;
+}
+
+.orb[data-live="true"] .orb-glow {
+  animation: orb-glow-pulse 5.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb * {
+    animation: none !important;
+  }
+}
